@@ -1,25 +1,19 @@
-FROM node:18-slim as pre-yarn
-# Use node:18-alpine if not using prisma
-# Required for prisma
-RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+FROM node:26-alpine AS dependencies
 WORKDIR /app
-COPY package.json yarn.lock ./
-COPY prisma ./prisma
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
 
-FROM pre-yarn as pre-install
-COPY .yarnrc.yml ./
-COPY .yarn ./.yarn
+FROM node:26-alpine AS build
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY tsconfig.json ./
+COPY src ./src
+RUN npm run build-files
 
-FROM pre-install as prod-install
-RUN yarn workspaces focus --production
-RUN yarn build-modules
-
-FROM pre-install as build
-RUN yarn --immutable
-COPY . .
-RUN yarn build-files
-
-FROM pre-yarn as main
-COPY --from=prod-install /app/node_modules ./node_modules
+FROM node:26-alpine AS main
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=dependencies /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
-CMD ["yarn", "start"]
+CMD ["node", "dist/index.js"]
