@@ -20,7 +20,7 @@ accessRouter.use(cors({ methods: ['POST'] }));
 
 accessRouter.post('/', async (req, res) => {
   const body = req.body as AccessRequestBody;
-  const clientSecret = body.client_secret ?? process.env.CLIENT_SECRET;
+  const clientSecret = body.client_secret || process.env.CLIENT_SECRET;
 
   if (!body.refresh_token) {
     res.status(400).json({ error: 'refresh_token is required' });
@@ -36,7 +36,7 @@ accessRouter.post('/', async (req, res) => {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
-      client_id: body.clientId ?? defaultClientId,
+      client_id: body.clientId || defaultClientId,
       client_secret: clientSecret,
       grant_type: 'refresh_token',
       refresh_token: body.refresh_token,
