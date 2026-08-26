@@ -5,7 +5,7 @@ import { clientId as defaultClientId } from '../helpers/constants.js';
 
 interface AccessRequestBody {
   clientId?: string;
-  client_secret?: string;
+  clientSecret?: string;
   refresh_token?: string;
 }
 
@@ -20,7 +20,7 @@ accessRouter.use(cors({ methods: ['POST'] }));
 
 accessRouter.post('/', async (req, res) => {
   const body = req.body as AccessRequestBody;
-  const clientSecret = body.client_secret || process.env.CLIENT_SECRET;
+  const clientSecret = body.clientSecret || process.env.CLIENT_SECRET;
 
   if (!body.refresh_token) {
     res.status(400).json({ error: 'refresh_token is required' });
