@@ -8,7 +8,7 @@ services:
       - '3005'
     labels:
       - traefik.enable=true
-      - traefik.http.routers.ogd.rule=Host(`ogd.richardxiong.com`)
+      - traefik.http.routers.ogd.rule=Host(`ogd-server.richardxiong.com`)
     environment:
       - CLIENT_SECRET=$CLIENT_SECRET
 
